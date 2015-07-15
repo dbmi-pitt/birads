@@ -64,7 +64,7 @@ public class ReportLuceneSeeder {
 					+ fsDirectory.getDirectory().getAbsolutePath());
 
 			CaTIES_CombinedLuceneAnalyzer perFieldAnalyzer = openPerFieldAnalyzer();
-			QueryParser queryParser = new QueryParser(Version.LUCENE_45,
+			QueryParser queryParser = new QueryParser(Version.LUCENE_40,
 					"documentText", perFieldAnalyzer);
 
 			CaTIES_HitsFacadeScoreSorted hits = new CaTIES_HitsFacadeScoreSorted();
