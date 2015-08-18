@@ -4,9 +4,7 @@
     <description/>
     <version>1.0</version>
     <vendor/>
-  <imports>
-    <import location="../../../ctakes/ctakes-type-system/src/main/resources/org/apache/ctakes/typesystem/types/TypeSystem.xml"/>
-  </imports>
+  <imports/>
   <types>
     <typeDescription>
       <name>edu.pitt.dbmi.birads.typesystem.type.Birads</name>
