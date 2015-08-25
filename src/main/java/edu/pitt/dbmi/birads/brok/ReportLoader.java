@@ -75,12 +75,12 @@ public class ReportLoader {
 	
 	private void processReport(Report report) throws IOException {
 		try {
-			String documentText = pullDocumentTextFromTies(report.getAccession());
+			String documentText = pullDocumentTextFromTies(report.getAccession()+"");
 			ReportSectionizer sectionizer = new ReportSectionizer();
 			// number breasts imaged will be derived 
 			// if initially set to zero
 			final int defaultNumberBreasts = 0;
-			Report sectionedReport = sectionizer.buildReport(report.getAccession(),
+			Report sectionedReport = sectionizer.buildReport(report.getAccession()+"",
 					defaultNumberBreasts, documentText);
 			report.setNumberBreastsImaged(sectionedReport.getNumberBreastsImaged());
 			report.setHasAddendum(sectionedReport.hasAddendum());

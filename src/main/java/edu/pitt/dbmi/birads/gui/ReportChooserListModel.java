@@ -40,7 +40,7 @@ public class ReportChooserListModel implements ListModel<ReportWidget> {
 		for (Report dbReport : dbReports) {
 			ReportWidget reportWidget = new ReportWidget();
 			reportWidget.setReport(dbReport);
-			String body = pullDocumentTextFromTies(reportWidget.getReport().getAccession());
+			String body = pullDocumentTextFromTies(reportWidget.getReport().getAccession()+"");
 			reportWidget.getReport().setBody(body);
 			reports.add(reportWidget);
 		}

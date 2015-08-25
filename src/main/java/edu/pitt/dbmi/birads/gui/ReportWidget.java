@@ -19,7 +19,7 @@ public class ReportWidget {
 	}
 	
 	public String toString() {
-		return report.getAccession();
+		return report.getAccession()+"";
 	}
 
 }

@@ -43,16 +43,16 @@ public class AnaforaCorporaBuilder {
 			AnaforaCorporaBuilder anaforaCorporaBuilder = new AnaforaCorporaBuilder();
 			anaforaCorporaBuilder.setTiesUser(args[0]);
 			anaforaCorporaBuilder.setTiesPassword(args[1]);
-			anaforaCorporaBuilder.setCorpusName("practice");
-			anaforaCorporaBuilder.setCorpusSelectionSize(5);
+			anaforaCorporaBuilder.setCorpusName("production2");
+			anaforaCorporaBuilder.setCorpusSelectionSize(26);
 			anaforaCorporaBuilder.execute();
 			
-			anaforaCorporaBuilder = new AnaforaCorporaBuilder();
-			anaforaCorporaBuilder.setTiesUser(args[0]);
-			anaforaCorporaBuilder.setTiesPassword(args[1]);
-			anaforaCorporaBuilder.setCorpusName("production");
-			anaforaCorporaBuilder.setCorpusSelectionSize(60);
-			anaforaCorporaBuilder.execute();
+//			anaforaCorporaBuilder = new AnaforaCorporaBuilder();
+//			anaforaCorporaBuilder.setTiesUser(args[0]);
+//			anaforaCorporaBuilder.setTiesPassword(args[1]);
+//			anaforaCorporaBuilder.setCorpusName("production");
+//			anaforaCorporaBuilder.setCorpusSelectionSize(60);
+//			anaforaCorporaBuilder.execute();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -73,7 +73,7 @@ public class AnaforaCorporaBuilder {
 	private void pullReportTextFromTies(Collection<Report> unProcessedReports) {
 		for (Report report : unProcessedReports) {
 			String documentText = pullDocumentTextFromTies(report
-					.getAccession());
+					.getAccession()+"");
 			report.setBody(documentText);
 		}
 	}
@@ -83,7 +83,7 @@ public class AnaforaCorporaBuilder {
 		List<Report> accumulator = new ArrayList<Report>();
 		for (int idx = 1; idx < 8; idx++) {
 			Criteria c = biradsDsm.getSession().createCriteria(Report.class);
-			c.add(Restrictions.like("applicationStatus", "EMITTED_" + idx));
+			c.add(Restrictions.like("applicationStatus", "EMITTING_PASS2_" + idx));
 			c.setMaxResults(selectionSize);
 			accumulator.addAll(c.list());
 		}
@@ -95,15 +95,13 @@ public class AnaforaCorporaBuilder {
 		final File corpusDirectory = new File(outputDirectory, corpusName);
 		FileUtils.deleteDirectory(corpusDirectory);
 		corpusDirectory.mkdir();
-		int idx = 0;
 		for (Report report : reports) {
-			String docDirectoryName = "doc" + StringUtils.leftPad(idx+"", 3, "0");
+			String docDirectoryName = "report" + StringUtils.leftPad(report.getAccession()+"", 12, "0");
 			File docDirectory = new File(corpusDirectory, docDirectoryName);
 			docDirectory.mkdir();
 			String docFileName = docDirectoryName;
 			File docFile = new File(docDirectory, docFileName);
 			FileUtils.write(docFile, report.getBody(), "UTF-8");
-			idx++;
 		}
 	}
 

@@ -54,13 +54,13 @@ public class Report {
 
 	@Index(name = "ACCESSION_IDX")
 	@Column(name = "ACCESSION")
-	private String accession;
+	private Long accession;
 
-	public String getAccession() {
+	public Long getAccession() {
 		return accession;
 	}
 
-	public void setAccession(String accession) {
+	public void setAccession(Long accession) {
 		this.accession = accession;
 	}
 

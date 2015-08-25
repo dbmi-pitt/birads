@@ -28,7 +28,7 @@ public class ReportCrudTester {
 		
 		// Save a Report
 		Report report = new Report();
-		report.setAccession("0000101");
+		report.setAccession(new Long("0000101"));
 		report.setApplicationStatus("PROCESSING");
 		report.setNumberBreastsImaged(2);
 		report.setLeftResult("a left result string");

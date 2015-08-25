@@ -163,8 +163,11 @@ public class Entity {
 	}
 
 	public String toKey() {
-		return documentSequence + type + StringUtils.leftPad(sPos+"", 5, "0") +
-				StringUtils.leftPad(ePos+"", 5, "0");
+		final StringBuilder sb = new StringBuilder();
+		sb.append(StringUtils.leftPad(sPos+"", 5, "0"));
+		sb.append(":");
+		sb.append(StringUtils.leftPad(ePos+"", 5, "0"));
+		return sb.toString();
 	}
 
 	public String toReflectionString() {
@@ -173,7 +176,7 @@ public class Entity {
 	}
 
 	public String toString() {
-		String formatter = "%s %s %5d %5d %3d";
+		String formatter = "[%s,%s,%5d,%5d,%3d]";
 		return String.format(formatter, getDocumentSequence(), getType(), getsPos(), getePos(), getMatchCode());
 	}
 

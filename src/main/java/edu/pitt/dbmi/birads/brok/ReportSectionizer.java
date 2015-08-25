@@ -30,7 +30,7 @@ public class ReportSectionizer {
 		// it up.
 
 		Report report = new Report();
-		report.setAccession(documentId);
+		report.setAccession(new Long(documentId));
 		report.setNumberBreastsImaged(numberBreastsImaged);
 		
 		String lastLine = null;

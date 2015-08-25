@@ -623,10 +623,10 @@ public class Brok {
 	private static Report processAccessionMatch(Matcher mAccession, Report report) {
 		report = accessionToReport.get(mAccession.group(1)) == null ? new Report()
 				: accessionToReport.get(mAccession.group(1));
-		report.setAccession(mAccession.group(1));
+		report.setAccession(new Long(mAccession.group(1)));
 		report.setNumberBreastsImaged(Integer.parseInt(mAccession.group(2)));
 		report.setBody(mAccession.group(3) + "\n");
-		accessionToReport.put(report.getAccession(), report);
+		accessionToReport.put(report.getAccession()+"", report);
 		BrokLogger.getInstance().log("Cached report for accession: " + report.getAccession());
 		return report;
 	}

@@ -1,13 +1,9 @@
 package edu.pitt.dbmi.birads.crf.irr;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -21,13 +17,11 @@ public class CohenKappaCalculator {
 
 	private final Map<String, Entity> oneOnly = new HashMap<String, Entity>();
 	private final Map<String, Entity> twoOnly = new HashMap<String, Entity>();
-	private final Map<String, Entity> consensus = new HashMap<String, Entity>();
-
-	private final Map<String, Entity> cumulativeEntities = new HashMap<String, Entity>();
-	private final LinkedHashMap<String, Entity> sortedCumulativeEntities = new LinkedHashMap<String, Entity>();
+	
 	private final LinkedHashSet<String> categories = new LinkedHashSet<String>();
 	private final LinkedHashMap<String, Integer> categoryIndex = new LinkedHashMap<String, Integer>();
 
+	private final Map<String, Double> contingencyMap = new HashMap<String, Double>();
 	private double[][] contingencyMatrix = null;
 	private double[] rowTotals = null;
 	private double[] colTotals = null;
@@ -37,10 +31,6 @@ public class CohenKappaCalculator {
 	private double expectedNumberOfAgreements = 0.0d;
 	private double kappa = 0.0d;
 
-	private int oneOnlyCount = 0;
-	private int twoOnlyCount = 0;
-	private int consensusCount = 0;
-
 	public void accumulate() {
 		documentOne.cacheEntities();
 		documentTwo.cacheEntities();
@@ -48,40 +38,17 @@ public class CohenKappaCalculator {
 		initializeExpertTwo();
 		calculateConsensus();
 
-		cumulativeEntities.putAll(oneOnly);
-		cumulativeEntities.putAll(twoOnly);
-		cumulativeEntities.putAll(consensus);
-
-		oneOnlyCount += oneOnly.size();
-		twoOnlyCount += twoOnly.size();
-		consensusCount += consensus.size();
-
 		oneOnly.clear();
 		twoOnly.clear();
-		consensus.clear();
-
 	}
-
-	private void calculateConsensus() {
-		final HashSet<String> keys = new HashSet<String>();
-		keys.addAll(oneOnly.keySet());
-		keys.addAll(twoOnly.keySet());
-		for (String key : keys) {
-			if (oneOnly.get(key) != null && twoOnly.get(key) != null) {
-				Entity consensusEntity = oneOnly.remove(key);
-				consensusEntity.setMatchCode(3);
-				consensus.put(key, consensusEntity);
-				twoOnly.remove(key);
-			}
-		}
-	}
-
+	
 	private void initializeExpertOne() {
 		documentOne.iterate();
 		while (documentOne.hasNext()) {
 			Entity entity = documentOne.next();
 			entity.setMatchCode(1);
-			oneOnly.put(entity.toKey(), entity);
+			String key = entity.toKey();
+			oneOnly.put(key, entity);
 		}
 	}
 
@@ -90,9 +57,40 @@ public class CohenKappaCalculator {
 		while (documentTwo.hasNext()) {
 			Entity entity = documentTwo.next();
 			entity.setMatchCode(2);
-			twoOnly.put(entity.toKey(), entity);
+			String key = entity.toKey();
+			twoOnly.put(key, entity);
 		}
 	}
+
+	private void calculateConsensus() {
+		final HashSet<String> keys = new HashSet<String>();
+		keys.addAll(oneOnly.keySet());
+		keys.addAll(twoOnly.keySet());
+		for (String key : keys) {
+			String oneKey = "Missing";
+			String twoKey = "Missing";
+			if (oneOnly.get(key) != null && twoOnly.get(key) != null) {
+				oneKey = oneOnly.remove(key).getType();
+				twoKey = twoOnly.remove(key).getType();
+			}
+			else if (twoOnly.get(key) == null) {
+				oneKey = oneOnly.remove(key).getType();
+			}
+			else {
+				twoKey = twoOnly.remove(key).getType();
+			}			
+			StringBuilder sb = new StringBuilder();
+			sb.append(oneKey);
+			sb.append(":");
+			sb.append(twoKey);
+			String contingencyKey = sb.toString();
+			if (contingencyMap.get(contingencyKey) == null) {
+				contingencyMap.put(contingencyKey, new Double(0.0d));
+			}
+			contingencyMap.put(contingencyKey, new Double(contingencyMap.get(contingencyKey).doubleValue() + 1.0d));
+		}
+	}
+
 
 	public void setDocumentOne(ExpertDocument documentOne) {
 		this.documentOne = documentOne;
@@ -113,12 +111,7 @@ public class CohenKappaCalculator {
 		// and an added possibility that one expert with disagree or "miss"
 		// something the other expert annotated.  (call this Missing)
 		//
-		
-		sortCumulativeEntities();
 		formulateContigencyTable();
-		processAgreements();
-		processCategoricalDisagreements();
-		processMissingOrPoorlyAlignedAnnotations();
 
 		int numRows = contingencyMatrix.length;
 		int numCols = contingencyMatrix.length;
@@ -190,88 +183,37 @@ public class CohenKappaCalculator {
 				(overAllTotal - expectedNumberOfAgreements);
 	}
 
-	private void processMissingOrPoorlyAlignedAnnotations() {
-		// Non paired disagreements are thought to be "Missing"
-		Iterator<Entity> entityIterator = sortedCumulativeEntities.values()
-				.iterator();
-		while (entityIterator.hasNext()) {
-			Entity entity = entityIterator.next();
-			if (entity.getMatchCode() < 3) {
-				int idx = categoryIndex.get(entity.getType());
-				int jdx = categoryIndex.get("Missing");
-				if (entity.getMatchCode() == 1) {
-					contingencyMatrix[idx][jdx] += 1.0d;
-				} else {
-					contingencyMatrix[jdx][idx] += 1.0d;
-				}
-			}
-		}
-	}
-
-	private void processCategoricalDisagreements() {
-		// Do disagreement or off-diagonals of the contingency matrix
-		Iterator<Entity> trailingIterator = sortedCumulativeEntities.values()
-				.iterator();
-		Iterator<Entity> leadingIterator = sortedCumulativeEntities.values()
-				.iterator();
-		leadingIterator.next();
-		while (leadingIterator.hasNext()) {
-			Entity trailingEntity = trailingIterator.next();
-			Entity leadingEntity = leadingIterator.next();
-			if (leadingEntity.onlyTypeDisagreement(trailingEntity)) {
-				int idx = categoryIndex.get(trailingEntity.getType());
-				int jdx = categoryIndex.get(leadingEntity.getType());
-				if (trailingEntity.getMatchCode() == 1
-						&& leadingEntity.getMatchCode() == 2) {
-					contingencyMatrix[idx][jdx] += 1.0d;
-				} else if (trailingEntity.getMatchCode() == 2
-						&& leadingEntity.getMatchCode() == 1) {
-					contingencyMatrix[jdx][idx] += 1.0d;
-				}
-				trailingEntity.setMatchCode(4);
-				leadingEntity.setMatchCode(4);
-			}
-		}
-
-	}
-
-	private void processAgreements() {
-		// Do agreements or diagonals of the contingency matrix
-		Iterator<Entity> entityIterator = sortedCumulativeEntities.values()
-				.iterator();
-		while (entityIterator.hasNext()) {
-			Entity entity = entityIterator.next();
-			if (entity.getMatchCode() == 3) {
-				int idx = categoryIndex.get(entity.getType());
-				contingencyMatrix[idx][idx] += 1.0d;
-				entity.setMatchCode(4);
-			}
-		}
-	}
-
-	private void sortCumulativeEntities() {
-		final List<String> sortedKeys = new ArrayList<String>();
-		sortedKeys.addAll(cumulativeEntities.keySet());
-		Collections.sort(sortedKeys);
-		for (String key : sortedKeys) {
-			sortedCumulativeEntities.put(key, cumulativeEntities.get(key));
-		}
-	}
-
 	private void formulateContigencyTable() {
 		deriveCategories();
 		buildCategoryIndex();
 		buildContigencyMatrix();
 		zeroMatrix(contingencyMatrix);
+		populateContigencyMatrix();
+	}
+
+	private void populateContigencyMatrix() {
+		for (String contingencyKey : contingencyMap.keySet()) {
+			String[] keyParts = contingencyKey.split(":");
+			String rowType = keyParts[0];
+			String colType = keyParts[1];
+			int row = categoryIndex.get(rowType);
+			int col = categoryIndex.get(colType);
+			contingencyMatrix[row][col] = contingencyMap.get(contingencyKey);
+		}
+		
 	}
 
 	private void deriveCategories() {
-		final TreeSet<String> categorySorter = new TreeSet<String>();
-		for (Entity entity : cumulativeEntities.values()) {
-			categorySorter.add(entity.getType());
+		if (categories.isEmpty()) {
+			final TreeSet<String> categorySorter = new TreeSet<String>();
+			for (String contingencyKey : contingencyMap.keySet()) {
+				String[] keyParts = contingencyKey.split(":");
+				categorySorter.add(keyParts[0]);
+				categorySorter.add(keyParts[1]);
+			}
+			categories.addAll(categorySorter);
+			categories.add("Missing");
 		}
-		categories.addAll(categorySorter);
-		categories.add("Missing");
 	}
 
 	private void buildCategoryIndex() {
@@ -320,19 +262,7 @@ public class CohenKappaCalculator {
 	}
 
 	public String toString() {
-		String formattingString = "";
-		formattingString += "oneOnly: %5d%n";
-		formattingString += "twoOnly: %5d%n";
-		formattingString += "consensus: %5d%n";
 		StringBuilder sb = new StringBuilder();
-		sb.append(String.format(formattingString, oneOnlyCount, twoOnlyCount,
-				consensusCount));
-		final List<String> sortedKeys = new ArrayList<String>();
-		sortedKeys.addAll(cumulativeEntities.keySet());
-		Collections.sort(sortedKeys);
-		for (String key : sortedKeys) {
-			sb.append(cumulativeEntities.get(key).toString() + "\n");
-		}
 		sb.append("\n\nCategories:\n");
 		for (String category : categories) {
 			sb.append("\t" + category + "\n");

@@ -81,6 +81,7 @@ public class BiradsDataSourceManager {
 	private void addAnnotatedClasses() {
 		configuration.addAnnotatedClass(edu.pitt.dbmi.birads.brok.pojos.Report.class);
 		configuration.addAnnotatedClass(edu.pitt.dbmi.birads.brok.pojos.Statistics.class);
+		configuration.addAnnotatedClass(edu.pitt.dbmi.birads.brok.pojos.Quarantine.class);
 	}
 	
 	public void addAnnotatedClsesForPackage(String relativePkgName) {

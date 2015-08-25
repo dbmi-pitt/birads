@@ -82,7 +82,7 @@ public class ReportLuceneSeeder {
 				Document luceneDoc = hits.getHitAt(idx);
 				String documentId = luceneDoc.get("documentId");
 				Report report = new Report();
-				report.setAccession(documentId);
+				report.setAccession(new Long(documentId));
 				report.setApplicationStatus("PROCESSING");
 				reports.add(report);
 				if (reports.size() == 1000) {

@@ -23,6 +23,7 @@ import edu.pitt.dbmi.birads.util.BrokLogger;
 // This class represents the contents of a breast imaging report. There is a
 // variable for each of these.
 //
+@SuppressWarnings("deprecation")
 @Entity
 @Table(name = "REPORT")
 @BatchSize(size = 5)
