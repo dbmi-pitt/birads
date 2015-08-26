@@ -23,12 +23,11 @@ public class CohenKappaCalculator {
 
 	private final Map<String, Double> contingencyMap = new HashMap<String, Double>();
 	private double[][] contingencyMatrix = null;
-	private double[] rowTotals = null;
-	private double[] colTotals = null;
+	private double[] rowMarginalPercentChanceAgreement = null;
+	private double[] colMarginalPercentChanceAgreement = null;
 	private double overAllTotal = 0.0d;
 	private double numberOfAgreements = 0.0d;
-	private double[] expectedNumOfAgreements = null;
-	private double expectedNumberOfAgreements = 0.0d;
+	private double expectedPercentChanceAgreement = 0.0d;
 	private double kappa = 0.0d;
 
 	public void accumulate() {
@@ -100,11 +99,12 @@ public class CohenKappaCalculator {
 		this.documentTwo = documentTwo;
 	}
 
+	
 	public void computeKappa() {
 		
-		// Reference http://psych.unl.edu/psycrs/handcomp/hckappa.PDF
-		
-		// Step 1
+		// Reference: Handbook of Inter-Rater Reliability, 4th Edition: 
+		// The Definitive Guide to ...   Page. 44-47
+	
 		// Organize information into a contingency table
 		// The way of thinking is each Annotation can be one of ten types
 		// since there are nine unique possible entity designations
@@ -112,75 +112,66 @@ public class CohenKappaCalculator {
 		// something the other expert annotated.  (call this Missing)
 		//
 		formulateContigencyTable();
-
+		
+		
+		//    Convert the table to probability matrix
+		//
 		int numRows = contingencyMatrix.length;
 		int numCols = contingencyMatrix.length;
-
-		// Step 2
-		// compute the row totals (sum across values in the same row)
-		// and column totals (sum across values on the same column)
-		// of the observed frequencies.
-
-		// compute row summations
-		rowTotals = new double[numRows];
-		for (int row = 0; row < contingencyMatrix.length; row++) {
-			rowTotals[row] = 0.0d;
+		double N = 0.0d;
+		for (int row = 0; row < numRows; row++) {
 			for (int col = 0; col < numCols; col++) {
-				rowTotals[row] += contingencyMatrix[row][col];
+				N += contingencyMatrix[row][col];
 			}
 		}
-
-		// compute column summations
-		colTotals = new double[numCols];
+		for (int row = 0; row < numRows; row++) {
+			for (int col = 0; col < numCols; col++) {
+				contingencyMatrix[row][col] /= N;
+			}
+		}
+		
+		// compute the probability of missing
+		double probabilityOfMissing = 0.0d;
+		for (int row = 0; row < numRows; row++) {
+			probabilityOfMissing += contingencyMatrix[row][numCols-1];
+		}
 		for (int col = 0; col < numCols; col++) {
-			colTotals[col] = 0.0d;
-			for (int row = 0; row < numRows; row++) {
-				colTotals[col] += contingencyMatrix[row][col];
-			}
+				probabilityOfMissing += contingencyMatrix[numRows-1][col];
+		}
+		
+		// compute the probability of agreement
+		double probabilityOfAgreement = 0.0d;
+		for (int diag = 0; diag < contingencyMatrix.length; diag++) {
+			probabilityOfAgreement += (contingencyMatrix[diag][diag] / (1.0d - probabilityOfMissing));
 		}
 
-		// Step 3
-		// compute the over all total
-		//
-		overAllTotal = 0.0d;
+		// compute row marginal probabilities for percent chance agreement
+		rowMarginalPercentChanceAgreement = new double[numRows];
 		for (int row = 0; row < numRows; row++) {
+			rowMarginalPercentChanceAgreement[row] = 0.0d;
 			for (int col = 0; col < numCols; col++) {
-				overAllTotal += contingencyMatrix[row][col];
+				rowMarginalPercentChanceAgreement[row] += contingencyMatrix[row][col];
 			}
 		}
 
-		// Step 4
-		//
-		// Compute the total number of agreements by summing the values in
-		// the diagonal cells of the table
-		//
-		numberOfAgreements = 0.0d;
-		for (int diag = 0; diag < numRows; diag++) {
-			numberOfAgreements += contingencyMatrix[diag][diag];
-		}
-
-		// Step 5
-		// Compute the expected frequency for the number of
-		// agreements the would have been expected by chance for each coding
-		// category.
-		//
-		expectedNumOfAgreements = new double[numRows];
-		for (int diag = 0; diag < numRows; diag++) {
-			expectedNumOfAgreements[diag] = (rowTotals[diag] * colTotals[diag])
-					/ overAllTotal;
+		// compute column marginal probabilities for percent chance agreement
+		colMarginalPercentChanceAgreement = new double[numCols];
+		for (int col = 0; col < numCols; col++) {
+			colMarginalPercentChanceAgreement[col] = 0.0d;
+			for (int row = 0; row < numRows; row++) {
+				colMarginalPercentChanceAgreement[col] += contingencyMatrix[row][col];
+			}
 		}
 		
-		// Step 6
 		// Compute the sum of the expected frequencies of agreement by chance
-		expectedNumberOfAgreements = 0.0d;
-		for (int row = 0; row < numRows; row++) {
-			expectedNumberOfAgreements += expectedNumOfAgreements[row];
+		expectedPercentChanceAgreement = 0.0d;
+		for (int diag = 0; diag < numRows; diag++) {
+			expectedPercentChanceAgreement += (rowMarginalPercentChanceAgreement[diag] * colMarginalPercentChanceAgreement[diag]);
 		}
 		
-		// Step 7 
 		// Compute Kappa
-		kappa = (numberOfAgreements - expectedNumberOfAgreements) /
-				(overAllTotal - expectedNumberOfAgreements);
+		kappa = (probabilityOfAgreement - expectedPercentChanceAgreement) /
+				(1.0d - expectedPercentChanceAgreement);
 	}
 
 	private void formulateContigencyTable() {
@@ -208,8 +199,12 @@ public class CohenKappaCalculator {
 			final TreeSet<String> categorySorter = new TreeSet<String>();
 			for (String contingencyKey : contingencyMap.keySet()) {
 				String[] keyParts = contingencyKey.split(":");
-				categorySorter.add(keyParts[0]);
-				categorySorter.add(keyParts[1]);
+				if (!keyParts[0].equals("Missing")) {
+					categorySorter.add(keyParts[0]);
+				}
+				if (!keyParts[1].equals("Missing")) {
+					categorySorter.add(keyParts[1]);
+				}
 			}
 			categories.addAll(categorySorter);
 			categories.add("Missing");
@@ -261,6 +256,10 @@ public class CohenKappaCalculator {
 		return sb.toString();
 	}
 
+	public double getKappa() {
+		return kappa;
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\n\nCategories:\n");
@@ -268,13 +267,11 @@ public class CohenKappaCalculator {
 			sb.append("\t" + category + "\n");
 		}
 		sb.append(prettyFormatMatrix("ContingencyMatrix:", contingencyMatrix));
-		sb.append(prettyFormatVector("Row Summations:", rowTotals));
-		sb.append(prettyFormatVector("Col Summations:", colTotals));
+		sb.append(prettyFormatVector("Row Summations:", rowMarginalPercentChanceAgreement));
+		sb.append(prettyFormatVector("Col Summations:", colMarginalPercentChanceAgreement));
 		sb.append("\n\nover all total is " + overAllTotal);
 		sb.append("\n\nsum of agreements is " + numberOfAgreements);
-		sb.append(prettyFormatVector("Expected number of agreements:",
-				expectedNumOfAgreements));
-		sb.append("\n\nsum of expected number of agreements is " + expectedNumberOfAgreements);
+		sb.append("\n\nsum of expected number of agreements is " + expectedPercentChanceAgreement);
 		sb.append("\n\nkappa is " + kappa);
 		
 		return sb.toString();

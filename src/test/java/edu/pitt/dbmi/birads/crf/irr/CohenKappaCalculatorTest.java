@@ -1,5 +1,7 @@
 package edu.pitt.dbmi.birads.crf.irr;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileWriter;
 
@@ -14,8 +16,6 @@ import edu.pitt.dbmi.birads.crf.digestion.ExpertDocument;
 
 public class CohenKappaCalculatorTest {
 
-	private String value = "x";
-
 	private static final String[][] entries = {
 			{ "Derangement", "Derangement", "22" },
 			{ "Derangement", "Dysfunctional", "10" },
@@ -26,23 +26,21 @@ public class CohenKappaCalculatorTest {
 			{ "Postural", "Derangement", "2" },
 			{ "Postural", "Dysfunctional", "5" },
 			{ "Postural", "Postural", "17" } };
-
+	
 	private static final String[][] entriesMissing = { { "DER", "DER", "22" },
 			{ "DER", "DYS", "10" }, { "DER", "POS", "2" }, { "DER", "X", "3" },
 			{ "DYS", "DER", "6" }, { "DYS", "DYS", "27" },
 			{ "DYS", "POS", "11" }, { "DYS", "X", "2" }, { "POS", "DER", "2" },
 			{ "POS", "DYS", "5" }, { "POS", "POS", "17" }, { "POS", "X", "3" },
 			{ "X", "DER", "3" }, { "X", "DYS", "1" }, { "X", "POS", "6" } };
-
+	
 	@Before
 	public void setUp() throws Exception {
-
 	}
 
 	
 	@After
 	public void tearDown() throws Exception {
-		System.out.println("In tearDown");
 	}
 
 	@Test
@@ -90,8 +88,9 @@ public class CohenKappaCalculatorTest {
 		cohenKappaCalculator.accumulate();
 
 		cohenKappaCalculator.computeKappa();
-		String cohenResultsAsString = cohenKappaCalculator.toString();
-		System.out.println(cohenResultsAsString);
+
+		assertEquals(4612,(new Double(cohenKappaCalculator.getKappa()*10000.0d)).intValue());
+
 	}
 
 	@Test
@@ -138,8 +137,8 @@ public class CohenKappaCalculatorTest {
 		cohenKappaCalculator.accumulate();
 
 		cohenKappaCalculator.computeKappa();
-		String cohenResultsAsString = cohenKappaCalculator.toString();
-		System.out.println(cohenResultsAsString);
+	
+		assertEquals(4992,(new Double(cohenKappaCalculator.getKappa()*10000.0d)).intValue());
 	}
 
 	private String buildXmlForExpert(String[][] entries, String expertName, int expertIndex) {
@@ -148,9 +147,13 @@ public class CohenKappaCalculatorTest {
 		sb.append("\n");
 		sb.append("<data>\n");
 		sb.append("\t<annotations>\n");
+		// First handle annotation where both experts weighted in
 		int sPos = 1;
 		int ePos = sPos + 10;
 		for (String[] entry : entries) {
+			if (entry[0].equals("X") || entry[1].equals("X")) {
+				continue;
+			}		
 			String expertAnnot = entry[expertIndex];
 			int numberOfAnnotations = Integer.valueOf(entry[2]).intValue();
 			for (int annotationNumber = 0; annotationNumber < numberOfAnnotations; annotationNumber++) {
@@ -168,10 +171,33 @@ public class CohenKappaCalculatorTest {
 				ePos = sPos + 10;
 			}
 		}
+		// Add additional annotations for this user where the other expert
+		// will be missing
+		for (String[] entry : entries) {
+			if (entry[0].equals("X") || entry[1].equals("X")) {
+				String expertAnnot = entry[expertIndex];
+				int numberOfAnnotations = Integer.valueOf(entry[2]).intValue();
+				for (int annotationNumber = 0; annotationNumber < numberOfAnnotations; annotationNumber++) {
+					if (!expertAnnot.equals("X")) {
+						sb.append("\t\t<entity>\n");
+						sb.append("\t\t\t<id>" + (annotationNumber + 1) + "@doc"
+								+ StringUtils.leftPad(annotationNumber + "", 3, "0")
+								+ "@" + expertName + "</id>\n");
+						sb.append("\t\t\t<span>" + sPos + "," + ePos + "</span>\n");
+						sb.append("\t\t\t<type>" + expertAnnot + "</type>\n");
+						sb.append("\t\t\t<parentsType>" + "birads" + "</parentsType>\n");
+						sb.append("\t\t\t<properties>\n");
+						sb.append("\t\t\t</properties>\n");
+						sb.append("\t\t</entity>\n");
+					}
+					sPos = ePos + 1;
+					ePos = sPos + 10;
+				}
+			}		
+		}
 		sb.append("\t</annotations>\n");
 		sb.append("</data>\n");
 		return sb.toString();
 	}
-
 
 }
