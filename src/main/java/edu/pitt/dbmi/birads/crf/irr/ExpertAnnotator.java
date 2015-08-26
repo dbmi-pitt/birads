@@ -3,7 +3,9 @@ package edu.pitt.dbmi.birads.crf.irr;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +27,8 @@ public class ExpertAnnotator {
 	
 	private final CohenKappaCalculator cohenKappaCalculator = new CohenKappaCalculator();
 	
+	private final LinkedHashSet<String> categories = new LinkedHashSet<String>();
+	
 	@SuppressWarnings("unused")
 	private final boolean isDebugging = false;
 
@@ -36,8 +40,17 @@ public class ExpertAnnotator {
 	public void execute() {
 		buildExpertList();
 		partitionExpertList();
+		filterCategories();
 		cohenKappaCompare();
 
+	}
+
+	private void filterCategories() {
+		categories.add("left_value");
+		categories.add("multilateral_value");
+		categories.add("nonspecific_value");
+		categories.add("right_value");
+		cohenKappaCalculator.setCategories(categories);
 	}
 
 	private void cohenKappaCompare() {

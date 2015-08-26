@@ -33,12 +33,62 @@ public class CohenKappaCalculator {
 	public void accumulate() {
 		documentOne.cacheEntities();
 		documentTwo.cacheEntities();
+		fuzzyResolveEntities();
 		initializeExpertOne();
 		initializeExpertTwo();
 		calculateConsensus();
 
 		oneOnly.clear();
 		twoOnly.clear();
+	}
+	
+	private void fuzzyResolveEntities() {
+		documentOne.iterate();
+		documentTwo.iterate();
+		Entity entityOne = (documentOne.hasNext()) ? documentOne.next() : null;
+		Entity entityTwo = (documentTwo.hasNext()) ? documentTwo.next() : null;
+		while (entityOne != null && entityTwo != null) {
+			if (closeProximity(entityOne, entityTwo)) {
+				repositionEntity(entityOne, entityTwo);
+				entityOne = (documentOne.hasNext()) ? documentOne.next() : null;
+				entityTwo = (documentTwo.hasNext()) ? documentTwo.next() : null;
+			}
+			else if (proceeds(entityOne, entityTwo)) {
+				entityOne = (documentOne.hasNext()) ? documentOne.next() : null;
+			}
+			else {
+				entityTwo = (documentTwo.hasNext()) ? documentTwo.next() : null;
+			}	
+		}
+	}
+	
+	private boolean proceeds(Entity entityOne, Entity entityTwo) {
+		boolean doesProceed = false;
+		if (entityOne.getsPos() < entityTwo.getsPos()) {
+			doesProceed = true;
+		}
+		else if (entityOne.getsPos() == entityTwo.getsPos()) {
+			if (entityOne.getePos() <= entityTwo.getePos()) {
+				doesProceed = true;
+			}
+		}
+		return doesProceed;
+	}
+
+	private boolean closeProximity(Entity entityOne, Entity entityTwo) {
+		boolean isCloseProximity = false;
+		int sDisagreement = Math.abs(entityOne.getsPos() - entityTwo.getsPos());
+		int eDisagreement = Math.abs(entityOne.getePos() - entityTwo.getePos());
+		int sumDisagreement = sDisagreement + eDisagreement;
+		if (sumDisagreement > 0 && sumDisagreement < 4) {
+			isCloseProximity = true;
+		}
+		return isCloseProximity;
+	}
+	
+	private void repositionEntity(Entity entityOne, Entity entityTwo) {
+		entityTwo.setsPos(entityOne.getsPos());
+		entityTwo.setePos(entityOne.getePos());
 	}
 	
 	private void initializeExpertOne() {
@@ -187,11 +237,14 @@ public class CohenKappaCalculator {
 			String[] keyParts = contingencyKey.split(":");
 			String rowType = keyParts[0];
 			String colType = keyParts[1];
-			int row = categoryIndex.get(rowType);
-			int col = categoryIndex.get(colType);
-			contingencyMatrix[row][col] = contingencyMap.get(contingencyKey);
+			
+			Integer row = categoryIndex.get(rowType);
+			Integer col = categoryIndex.get(colType);
+			if (row != null && col != null) {
+				contingencyMatrix[row][col] = contingencyMap.get(contingencyKey);
+			}
 		}
-		
+		System.out.println(prettyFormatMatrix("ContingencyMatrix:", contingencyMatrix));
 	}
 
 	private void deriveCategories() {
@@ -206,9 +259,9 @@ public class CohenKappaCalculator {
 					categorySorter.add(keyParts[1]);
 				}
 			}
-			categories.addAll(categorySorter);
-			categories.add("Missing");
+			categories.addAll(categorySorter);	
 		}
+		categories.add("Missing");
 	}
 
 	private void buildCategoryIndex() {
@@ -259,6 +312,10 @@ public class CohenKappaCalculator {
 	public double getKappa() {
 		return kappa;
 	}
+	
+	public void setCategories(LinkedHashSet<String> categories) {
+		this.categories.addAll(categories);
+	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -266,7 +323,7 @@ public class CohenKappaCalculator {
 		for (String category : categories) {
 			sb.append("\t" + category + "\n");
 		}
-		sb.append(prettyFormatMatrix("ContingencyMatrix:", contingencyMatrix));
+		sb.append(prettyFormatMatrix("Probability Matrix:", contingencyMatrix));
 		sb.append(prettyFormatVector("Row Summations:", rowMarginalPercentChanceAgreement));
 		sb.append(prettyFormatVector("Col Summations:", colMarginalPercentChanceAgreement));
 		sb.append("\n\nover all total is " + overAllTotal);
