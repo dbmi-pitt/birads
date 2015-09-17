@@ -15,7 +15,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.xml.sax.SAXException;
 
-public class ExpertDocument {
+public class ExpertDocument implements Comparable<ExpertDocument> {
 
 	private String path;
 	private String expert;
@@ -104,9 +104,16 @@ public class ExpertDocument {
 	public void setPath(String path) {
 		this.path = path;
 	}
+	
+	@Override
+	public int compareTo(ExpertDocument docTwo) {
+		return getSequence().compareTo(docTwo.getSequence());
+	}
 
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this,
 				ToStringStyle.MULTI_LINE_STYLE);
 	}
+
+	
 }

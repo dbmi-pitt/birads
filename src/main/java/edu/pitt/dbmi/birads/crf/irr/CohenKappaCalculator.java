@@ -25,8 +25,6 @@ public class CohenKappaCalculator {
 	private double[][] contingencyMatrix = null;
 	private double[] rowMarginalPercentChanceAgreement = null;
 	private double[] colMarginalPercentChanceAgreement = null;
-	private double overAllTotal = 0.0d;
-	private double numberOfAgreements = 0.0d;
 	private double expectedPercentChanceAgreement = 0.0d;
 	private double kappa = 0.0d;
 
@@ -326,8 +324,6 @@ public class CohenKappaCalculator {
 		sb.append(prettyFormatMatrix("Probability Matrix:", contingencyMatrix));
 		sb.append(prettyFormatVector("Row Summations:", rowMarginalPercentChanceAgreement));
 		sb.append(prettyFormatVector("Col Summations:", colMarginalPercentChanceAgreement));
-		sb.append("\n\nover all total is " + overAllTotal);
-		sb.append("\n\nsum of agreements is " + numberOfAgreements);
 		sb.append("\n\nsum of expected number of agreements is " + expectedPercentChanceAgreement);
 		sb.append("\n\nkappa is " + kappa);
 		
