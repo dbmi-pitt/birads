@@ -11,7 +11,7 @@ import org.apache.uima.cas.impl.TypeImpl;
 import org.apache.uima.cas.Type;
 
 /** 
- * Updated by JCasGen Tue Aug 18 16:04:38 EDT 2015
+ * Updated by JCasGen Thu Sep 17 14:07:52 EDT 2015
  * @generated */
 public class RightBirads_Type extends Birads_Type {
   /** @generated 

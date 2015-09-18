@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** Holds and numeric value for BIRADS between zero and six
- * Updated by JCasGen Tue Aug 18 16:04:37 EDT 2015
+ * Updated by JCasGen Thu Sep 17 14:07:52 EDT 2015
  * @generated */
 public class Birads_Type extends Annotation_Type {
   /** @generated 

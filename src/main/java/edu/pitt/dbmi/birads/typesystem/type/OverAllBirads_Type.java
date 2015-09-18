@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Tue Aug 18 16:04:38 EDT 2015 */
+/* First created by JCasGen Thu Sep 17 14:07:52 EDT 2015 */
 package edu.pitt.dbmi.birads.typesystem.type;
 
 import org.apache.uima.jcas.JCas;
@@ -10,10 +10,10 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.impl.TypeImpl;
 import org.apache.uima.cas.Type;
 
-/** 
+/** Overall Birads Value
  * Updated by JCasGen Thu Sep 17 14:07:52 EDT 2015
  * @generated */
-public class NonSpecificBirads_Type extends Birads_Type {
+public class OverAllBirads_Type extends Birads_Type {
   /** @generated 
    * @return the generator for this type
    */
@@ -23,25 +23,25 @@ public class NonSpecificBirads_Type extends Birads_Type {
   private final FSGenerator fsGenerator = 
     new FSGenerator() {
       public FeatureStructure createFS(int addr, CASImpl cas) {
-  			 if (NonSpecificBirads_Type.this.useExistingInstance) {
+  			 if (OverAllBirads_Type.this.useExistingInstance) {
   			   // Return eq fs instance if already created
-  		     FeatureStructure fs = NonSpecificBirads_Type.this.jcas.getJfsFromCaddr(addr);
+  		     FeatureStructure fs = OverAllBirads_Type.this.jcas.getJfsFromCaddr(addr);
   		     if (null == fs) {
-  		       fs = new NonSpecificBirads(addr, NonSpecificBirads_Type.this);
-  			   NonSpecificBirads_Type.this.jcas.putJfsFromCaddr(addr, fs);
+  		       fs = new OverAllBirads(addr, OverAllBirads_Type.this);
+  			   OverAllBirads_Type.this.jcas.putJfsFromCaddr(addr, fs);
   			   return fs;
   		     }
   		     return fs;
-        } else return new NonSpecificBirads(addr, NonSpecificBirads_Type.this);
+        } else return new OverAllBirads(addr, OverAllBirads_Type.this);
   	  }
     };
   /** @generated */
   @SuppressWarnings ("hiding")
-  public final static int typeIndexID = NonSpecificBirads.typeIndexID;
+  public final static int typeIndexID = OverAllBirads.typeIndexID;
   /** @generated 
      @modifiable */
   @SuppressWarnings ("hiding")
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("edu.pitt.dbmi.birads.typesystem.type.NonSpecificBirads");
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("edu.pitt.dbmi.birads.typesystem.type.OverAllBirads");
 
 
 
@@ -50,7 +50,7 @@ public class NonSpecificBirads_Type extends Birads_Type {
 	 * @param jcas JCas
 	 * @param casType Type 
 	 */
-  public NonSpecificBirads_Type(JCas jcas, Type casType) {
+  public OverAllBirads_Type(JCas jcas, Type casType) {
     super(jcas, casType);
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
 

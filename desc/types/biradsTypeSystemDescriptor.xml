@@ -4,7 +4,9 @@
     <description/>
     <version>1.0</version>
     <vendor/>
-  <imports/>
+  <imports>
+    <import name="org.apache.ctakes.typesystem.types.TypeSystem"/>
+  </imports>
   <types>
     <typeDescription>
       <name>edu.pitt.dbmi.birads.typesystem.type.Birads</name>
@@ -41,6 +43,11 @@
     <typeDescription>
       <name>edu.pitt.dbmi.birads.typesystem.type.NoBirads</name>
       <description/>
+      <supertypeName>edu.pitt.dbmi.birads.typesystem.type.Birads</supertypeName>
+    </typeDescription>
+  <typeDescription>
+      <name>edu.pitt.dbmi.birads.typesystem.type.OverAllBirads</name>
+      <description>Overall Birads Value</description>
       <supertypeName>edu.pitt.dbmi.birads.typesystem.type.Birads</supertypeName>
     </typeDescription>
   </types>

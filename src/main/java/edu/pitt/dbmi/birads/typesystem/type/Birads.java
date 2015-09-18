@@ -11,8 +11,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** Holds and numeric value for BIRADS between zero and six
- * Updated by JCasGen Tue Aug 18 16:04:37 EDT 2015
- * XML source: C:/ws/ties5/birads/desc/types/biradsTypeSystemDescriptor.xml
+ * Updated by JCasGen Thu Sep 17 14:07:52 EDT 2015
+ * XML source: C:/Users/kjm84/git/birads/desc/types/biradsTypeSystemDescriptor.xml
  * @generated */
 public class Birads extends Annotation {
   /** @generated

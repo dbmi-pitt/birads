@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Tue Aug 18 16:04:37 EDT 2015 */
+/* First created by JCasGen Thu Sep 17 14:07:52 EDT 2015 */
 package edu.pitt.dbmi.birads.typesystem.type;
 
 import org.apache.uima.jcas.JCas; 
@@ -9,16 +9,16 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 
-/** 
+/** Overall Birads Value
  * Updated by JCasGen Thu Sep 17 14:07:52 EDT 2015
  * XML source: C:/Users/kjm84/git/birads/desc/types/biradsTypeSystemDescriptor.xml
  * @generated */
-public class LeftBirads extends Birads {
+public class OverAllBirads extends Birads {
   /** @generated
    * @ordered 
    */
   @SuppressWarnings ("hiding")
-  public final static int typeIndexID = JCasRegistry.register(LeftBirads.class);
+  public final static int typeIndexID = JCasRegistry.register(OverAllBirads.class);
   /** @generated
    * @ordered 
    */
@@ -32,14 +32,14 @@ public class LeftBirads extends Birads {
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected LeftBirads() {/* intentionally empty block */}
+  protected OverAllBirads() {/* intentionally empty block */}
     
   /** Internal - constructor used by generator 
    * @generated
    * @param addr low level Feature Structure reference
    * @param type the type of this Feature Structure 
    */
-  public LeftBirads(int addr, TOP_Type type) {
+  public OverAllBirads(int addr, TOP_Type type) {
     super(addr, type);
     readObject();
   }
@@ -47,7 +47,7 @@ public class LeftBirads extends Birads {
   /** @generated
    * @param jcas JCas to which this Feature Structure belongs 
    */
-  public LeftBirads(JCas jcas) {
+  public OverAllBirads(JCas jcas) {
     super(jcas);
     readObject();   
   } 
@@ -57,7 +57,7 @@ public class LeftBirads extends Birads {
    * @param begin offset to the begin spot in the SofA
    * @param end offset to the end spot in the SofA 
   */  
-  public LeftBirads(JCas jcas, int begin, int end) {
+  public OverAllBirads(JCas jcas, int begin, int end) {
     super(jcas);
     setBegin(begin);
     setEnd(end);

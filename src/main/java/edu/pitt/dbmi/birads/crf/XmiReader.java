@@ -26,22 +26,19 @@ import org.apache.uima.jcas.JFSIndexRepository;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 
-
-
 import edu.pitt.dbmi.birads.typesystem.type.LeftBirads;
+import edu.pitt.dbmi.birads.typesystem.type.MultiLateralBirads;
+import edu.pitt.dbmi.birads.typesystem.type.NonSpecificBirads;
+import edu.pitt.dbmi.birads.typesystem.type.OverAllBirads;
+import edu.pitt.dbmi.birads.typesystem.type.RightBirads;
 
 public class XmiReader {
 
-	private final String XMI_INPUT_DIR_PATH = "C:/Users/kjm84/Desktop/birads_reports/production_xmi";
-	private final String FTR_OUTPUT_DIR_PATH = "C:/Users/kjm84/Desktop/birads_reports/production_ftr";
+	private final String XMI_INPUT_DIR_PATH = "C:/Users/kjm84/Desktop/snapshot091715/xmi";
+	private final String FTR_OUTPUT_DIR_PATH = "C:/Users/kjm84/Desktop/snapshot091715/ftr";
 
 	private File ftrsDirectory = null;
 	private TypeSystemDescription typeSystemDescription = null;
-
-	private final List<JCas> jCasList = new ArrayList<JCas>();
-
-	private int numberProcessed = 0;
-	private int numberToProcess = 15;
 
 	public static void main(String[] args) {
 		XmiReader xmiReader = new XmiReader();
@@ -54,45 +51,31 @@ public class XmiReader {
 		} catch (UIMAException | IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void tryExecute() throws UIMAException, IOException {
 		establishTypeSystem();
-		cacheXmiFiles();
 		createOrReplaceFeaturesDirectory();
-		deriveTokenFeaturesForXmi();
-
+		processXmiFiles();
 	}
-
-	private void createOrReplaceFeaturesDirectory() {
-		try {
-			ftrsDirectory = new File(FTR_OUTPUT_DIR_PATH);
-			if (!ftrsDirectory.exists()) {
-				ftrsDirectory.mkdir();
-			}
-			FileUtils.cleanDirectory(ftrsDirectory);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void deriveTokenFeaturesForXmi() throws IOException {
-		for (JCas jCas : jCasList) {
-			if (numberProcessed < numberToProcess) {
+	
+	private void processXmiFiles() throws UIMAException, IOException {
+		File xmiDirectory = new File(XMI_INPUT_DIR_PATH);
+		if (xmiDirectory.exists() && xmiDirectory.isDirectory()) {
+			File[] xmiFiles = xmiDirectory.listFiles();
+			for (File xmiFile : xmiFiles) {
+				JCas jCas = loadXmiFileIntoCas(xmiFile);
 				processJCas(jCas);
-				numberProcessed++;
-			} else {
-				break;
 			}
 		}
-
 	}
-
+	
 	private void processJCas(JCas jCas) throws IOException {
 		
 		final List<String> featureLines = new ArrayList<>();
 		
+		boolean hasBirads = false;
+	
 		JFSIndexRepository indexes = jCas.getJFSIndexRepository();
 		FSIterator<Annotation> annotItr = indexes.getAnnotationIndex(
 				BaseToken.type).iterator();
@@ -114,16 +97,25 @@ public class XmiReader {
 			tokenOutput.append(" ");
 			tokenOutput.append(extractBiradsClassification(annotation));
 			featureLines.add(tokenOutput.toString());
+			
+			if (!featureLines.get(featureLines.size()-1).endsWith("NoBirads")) {
+				System.out.println(featureLines.get(featureLines.size()-1));
+				hasBirads = true;
+			}
 		}
 		
-		String documentUuid = JCasUtil.selectSingle(jCas, DocumentID.class)
-				.getDocumentID();
-		File document = new File(ftrsDirectory, documentUuid + ".txt");
-		FileUtils.writeLines(document, featureLines);
-		System.out.println("Wrote " + document.getAbsolutePath());
+		if (hasBirads) {
+			String documentUuid = JCasUtil.selectSingle(jCas, DocumentID.class)
+					.getDocumentID();
+			File document = new File(ftrsDirectory, documentUuid + ".txt");
+			FileUtils.writeLines(document, featureLines);
+			System.out.println("Wrote " + document.getAbsolutePath());
+		}
+		
 	}
 
-	private Object extractBiradsClassification(Annotation annotation) {
+	@SuppressWarnings("unused")
+	private Object extractBiradsBinaryClassification(Annotation annotation) {
 		String result = "no";
 		final List<LeftBirads> biradsMentions = new ArrayList<>();
 		biradsMentions.addAll(JCasUtil.selectCovering(LeftBirads.class,
@@ -131,6 +123,47 @@ public class XmiReader {
 		if (biradsMentions.size() >= 1) {
 			result = "yes";
 		}
+		return result;
+	}
+	
+	private Object extractBiradsClassification(Annotation annotation) {
+		
+		String result = "NoBirads";
+		final List<LeftBirads> biradsLeftMentions = new ArrayList<>();
+		biradsLeftMentions.addAll(JCasUtil.selectCovering(LeftBirads.class,
+				annotation));
+		if (biradsLeftMentions.size() >= 1) {
+			result = "LeftBirads";
+		}
+		
+		final List<RightBirads> biradsRightMentions = new ArrayList<>();
+		biradsRightMentions.addAll(JCasUtil.selectCovering(RightBirads.class,
+				annotation));
+		if (biradsRightMentions.size() >= 1) {
+			result = "RightBirads";
+		}
+		
+		final List<MultiLateralBirads> biradsMultiLateralMentions = new ArrayList<>();
+		biradsMultiLateralMentions.addAll(JCasUtil.selectCovering(MultiLateralBirads.class,
+				annotation));
+		if (biradsMultiLateralMentions.size() >= 1) {
+			result = "MultiLateralBirads";
+		}
+		
+		final List<NonSpecificBirads> biradsNonSpecificMentions = new ArrayList<>();
+		biradsNonSpecificMentions.addAll(JCasUtil.selectCovering(NonSpecificBirads.class,
+				annotation));
+		if (biradsNonSpecificMentions.size() >= 1) {
+			result = "NonSpecificBirads";
+		}
+		
+		final List<OverAllBirads> biradsOverAllMentions = new ArrayList<>();
+		biradsOverAllMentions.addAll(JCasUtil.selectCovering(OverAllBirads.class,
+				annotation));
+		if (biradsOverAllMentions.size() >= 1) {
+			result = "OverAllBirads";
+		}
+		
 		return result;
 	}
 
@@ -204,29 +237,6 @@ public class XmiReader {
 				|| annotation instanceof SymbolToken;
 	}
 
-	// final boolean isNonLookup = annotation instanceof NewlineToken
-	// || annotation instanceof PunctuationToken
-	// || annotation instanceof ContractionToken
-	// || annotation instanceof SymbolToken;
-	// if (isNonLookup) {
-	// System.out.println("isNonLookup == true");
-	// }
-	// if (annotation instanceof WordToken) {
-	// System.out.println(annotation.getCoveredText());
-	// }
-
-	private void cacheXmiFiles() throws UIMAException, IOException {
-		File xmiDirectory = new File(XMI_INPUT_DIR_PATH);
-		if (xmiDirectory.exists() && xmiDirectory.isDirectory()) {
-			File[] xmiFiles = xmiDirectory.listFiles();
-			for (File xmiFile : xmiFiles) {
-				JCas jCas = loadXmiFileIntoCas(xmiFile);
-				jCasList.add(jCas);
-			}
-		}
-
-	}
-
 	private void establishTypeSystem() {
 		final File typeSystemFile = new File(
 				"desc/types/biradsTypeSystemDescriptor.xml");
@@ -234,16 +244,19 @@ public class XmiReader {
 		typeSystemDescription = TypeSystemDescriptionFactory
 				.createTypeSystemDescriptionFromPath(typeSystemUri);
 	}
+	
+	private void createOrReplaceFeaturesDirectory() {
+		try {
+			ftrsDirectory = new File(FTR_OUTPUT_DIR_PATH);
+			if (!ftrsDirectory.exists()) {
+				ftrsDirectory.mkdir();
+			}
+			FileUtils.cleanDirectory(ftrsDirectory);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-	/**
-	 * load CAS object from XMO
-	 * 
-	 * @param document
-	 * @param typesystem
-	 * @return
-	 * @throws UIMAException
-	 * @throws IOException
-	 */
 	private JCas loadXmiFileIntoCas(File xmiFile) throws UIMAException,
 			IOException {
 		final JCas jCas = JCasFactory.createJCas(xmiFile.getAbsolutePath(),

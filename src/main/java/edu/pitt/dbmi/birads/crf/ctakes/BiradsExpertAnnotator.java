@@ -20,6 +20,7 @@ import edu.pitt.dbmi.birads.typesystem.type.Birads;
 import edu.pitt.dbmi.birads.typesystem.type.LeftBirads;
 import edu.pitt.dbmi.birads.typesystem.type.MultiLateralBirads;
 import edu.pitt.dbmi.birads.typesystem.type.NonSpecificBirads;
+import edu.pitt.dbmi.birads.typesystem.type.OverAllBirads;
 import edu.pitt.dbmi.birads.typesystem.type.RightBirads;
 
 public class BiradsExpertAnnotator extends JCasAnnotator_ImplBase {
@@ -104,6 +105,12 @@ public class BiradsExpertAnnotator extends JCasAnnotator_ImplBase {
 		case "nonspecific_value":
 			System.out.println("creating NonSpecificBirads");
 			biradsAnnotation = new NonSpecificBirads(jCas);
+			biradsAnnotation.setBegin(start);
+			biradsAnnotation.setEnd(end);
+			break;
+		case "overall_value":
+			System.out.println("creating OverAllBirads");
+			biradsAnnotation = new OverAllBirads(jCas);
 			biradsAnnotation.setBegin(start);
 			biradsAnnotation.setEnd(end);
 			break;

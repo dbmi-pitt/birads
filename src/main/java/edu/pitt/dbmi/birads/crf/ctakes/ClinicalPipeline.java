@@ -98,7 +98,7 @@ public class ClinicalPipeline {
 
 	private static CollectionReader createFilesInDirectoryReader(
 			final String inputDirectory) throws UIMAException, IOException {
-		final String descriptorPath = "../ctakes/ctakes-core/desc/collection_reader/FilesInDirectoryCollectionReader.xml";
+		final String descriptorPath = "desc/collection_reader/FilesInDirectoryCollectionReader.xml";
 		return CollectionReaderFactory
 				.createReaderFromPath(descriptorPath,
 						FilesInDirectoryCollectionReader.PARAM_INPUTDIR,
