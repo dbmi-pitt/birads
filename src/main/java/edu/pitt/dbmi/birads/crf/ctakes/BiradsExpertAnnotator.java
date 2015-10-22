@@ -32,7 +32,7 @@ public class BiradsExpertAnnotator extends JCasAnnotator_ImplBase {
 	@ConfigurationParameter(name = PARAM_TEXT_DIRECTORY, mandatory = true, description = "directory containing the text files (if DocumentIDs are just filenames); "
 			+ "defaults to assuming that DocumentIDs are full file paths")
 	private File expertDirectory = null;
-
+	
 	@Override
 	public void initialize(UimaContext uimaContext)
 			throws ResourceInitializationException {
@@ -68,8 +68,10 @@ public class BiradsExpertAnnotator extends JCasAnnotator_ImplBase {
 		String expertPath = JCasUtil.selectSingle(jCas, DocumentID.class)
 				.getDocumentID();
 		if (expertDirectory != null) {
+			expertPath = expertPath.replaceAll("\\.txt", "");
 			expertPath = expertDirectory + File.separator + expertPath
 					+ ".birads.Rebeccaj.completed.xml";
+			System.out.println("The expert path is " + expertPath);
 		}
 		File tmpFile = new File(expertPath);
 		URI answer = null;

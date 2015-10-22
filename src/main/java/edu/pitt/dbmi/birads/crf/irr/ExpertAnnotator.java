@@ -14,7 +14,7 @@ import edu.pitt.dbmi.birads.crf.digestion.ExpertDocument;
 
 public class ExpertAnnotator {
 
-	private final String inputPath = "C:\\Users\\kjm84\\Desktop\\snapshot091715";
+	private final String inputPath = "C:\\Users\\kjm84\\Desktop\\snapshot102115\\expert";
 
 	private final List<ExpertDocument> allExpertDocs = new ArrayList<ExpertDocument>();
 
@@ -124,9 +124,7 @@ public class ExpertAnnotator {
 		File f = new File(inputPath);
 		File[] directoryFiles = f.listFiles();
 		for (File directoryFile : directoryFiles) {
-
-			Pattern pattern = Pattern.compile("^doc(\\d{3})\\.birads\\.(\\w+)");
-			pattern = Pattern.compile("^report(\\d{12})\\.birads\\.(\\w+)");
+			Pattern pattern = Pattern.compile("^report(\\d{12})\\.birads\\.(\\w+)");
 			Matcher matcher = pattern.matcher(directoryFile.getName());
 			if (matcher.find()) {
 				ExpertDocument doc = new ExpertDocument();

@@ -34,8 +34,8 @@ import edu.pitt.dbmi.birads.typesystem.type.RightBirads;
 
 public class XmiReader {
 
-	private final String XMI_INPUT_DIR_PATH = "C:/Users/kjm84/Desktop/snapshot091715/xmi";
-	private final String FTR_OUTPUT_DIR_PATH = "C:/Users/kjm84/Desktop/snapshot091715/ftr";
+	private final String XMI_INPUT_DIR_PATH = "C:/Users/kjm84/Desktop/snapshot102115/xmi";
+	private final String FTR_OUTPUT_DIR_PATH = "C:/Users/kjm84/Desktop/snapshot102115/ftr";
 
 	private File ftrsDirectory = null;
 	private TypeSystemDescription typeSystemDescription = null;
@@ -107,6 +107,7 @@ public class XmiReader {
 		if (hasBirads) {
 			String documentUuid = JCasUtil.selectSingle(jCas, DocumentID.class)
 					.getDocumentID();
+			documentUuid = documentUuid.replaceAll("\\.txt$", "");
 			File document = new File(ftrsDirectory, documentUuid + ".txt");
 			FileUtils.writeLines(document, featureLines);
 			System.out.println("Wrote " + document.getAbsolutePath());
@@ -129,6 +130,7 @@ public class XmiReader {
 	private Object extractBiradsClassification(Annotation annotation) {
 		
 		String result = "NoBirads";
+	
 		final List<LeftBirads> biradsLeftMentions = new ArrayList<>();
 		biradsLeftMentions.addAll(JCasUtil.selectCovering(LeftBirads.class,
 				annotation));
