@@ -7,7 +7,28 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>birads</name>
   <description>Information Extraction from Radiology Reports</description>
-  <dependencies>    
+  <dependencies> 
+      <dependency>
+         <groupId>catiesjar</groupId>
+         <artifactId>catiesjar</artifactId>
+         <version>1</version>
+         <scope>system</scope>
+         <systemPath>${basedir}/lib/caties.jar</systemPath>
+      </dependency>
+      <dependency>
+         <groupId>malletdepsjar</groupId>
+         <artifactId>malletdepsjar</artifactId>
+         <version>1</version>
+         <scope>system</scope>
+         <systemPath>${basedir}/lib/mallet-deps.jar</systemPath>
+      </dependency>
+       <dependency>
+         <groupId>mallet</groupId>
+         <artifactId>malletjar</artifactId>
+         <version>1</version>
+         <scope>system</scope>
+         <systemPath>${basedir}/lib/mallet.jar</systemPath>
+      </dependency>
   	 <dependency>
   	 	<groupId>com.google.guava</groupId>
   	 	<artifactId>guava</artifactId>
