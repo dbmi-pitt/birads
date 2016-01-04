@@ -344,7 +344,7 @@ public class CohenKappaCalculator {
 		sb.append("\n\nkappa is " + kappa);
 		
 		if (errorLogger.toString().length() > 0) {
-			sb.append("\n\nDescrepancies:\n");
+			sb.append("\n\nDiscrepancies:\n");
 			sb.append(errorLogger.toString());
 		}
 		
