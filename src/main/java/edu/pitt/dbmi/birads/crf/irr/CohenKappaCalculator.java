@@ -27,6 +27,8 @@ public class CohenKappaCalculator {
 	private double[] colMarginalPercentChanceAgreement = null;
 	private double expectedPercentChanceAgreement = 0.0d;
 	private double kappa = 0.0d;
+	
+	private final StringBuilder errorLogger = new StringBuilder();
 
 	public void accumulate() {
 		documentOne.cacheEntities();
@@ -135,6 +137,16 @@ public class CohenKappaCalculator {
 				contingencyMap.put(contingencyKey, new Double(0.0d));
 			}
 			contingencyMap.put(contingencyKey, new Double(contingencyMap.get(contingencyKey).doubleValue() + 1.0d));
+            boolean isReportableMismatch = true;
+            isReportableMismatch = isReportableMismatch && (!oneKey.equals(twoKey));
+            isReportableMismatch = isReportableMismatch && categories.contains(oneKey);
+            isReportableMismatch = isReportableMismatch && categories.contains(twoKey);
+			if (isReportableMismatch) {
+				errorLogger.append(documentOne.getSequence() + ": ");
+				errorLogger.append("(" + documentOne.getExpert() + ", " + oneKey + ") ");
+				errorLogger.append("(" + documentTwo.getExpert() + ", " + twoKey + ") ");
+				errorLogger.append("\n");
+			}
 		}
 	}
 
@@ -311,6 +323,10 @@ public class CohenKappaCalculator {
 		return kappa;
 	}
 	
+	public StringBuilder getErrorLogger() {
+		return errorLogger;
+	}
+
 	public void setCategories(LinkedHashSet<String> categories) {
 		this.categories.addAll(categories);
 	}
@@ -326,6 +342,11 @@ public class CohenKappaCalculator {
 		sb.append(prettyFormatVector("Col Summations:", colMarginalPercentChanceAgreement));
 		sb.append("\n\nsum of expected number of agreements is " + expectedPercentChanceAgreement);
 		sb.append("\n\nkappa is " + kappa);
+		
+		if (errorLogger.toString().length() > 0) {
+			sb.append("\n\nDescrepancies:\n");
+			sb.append(errorLogger.toString());
+		}
 		
 		return sb.toString();
 	}
