@@ -23,7 +23,6 @@ import edu.pitt.dbmi.birads.util.BrokLogger;
 // This class represents the contents of a breast imaging report. There is a
 // variable for each of these.
 //
-@SuppressWarnings("deprecation")
 @Entity
 @Table(name = "REPORT")
 @BatchSize(size = 5)
@@ -75,6 +74,17 @@ public class Report {
 
 	public void setApplicationStatus(String applicationStatus) {
 		this.applicationStatus = applicationStatus;
+	}
+	
+	@Column(name = "DOCUMENT_TYPE", length = 50)
+	private String documentType;
+
+	public String getDocumentType() {
+		return this.documentType;
+	}
+
+	public void setDocumentType(String documentType) {
+		this.documentType = documentType;
 	}
 
 	@Column(name = "LEFT_RESULT")

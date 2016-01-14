@@ -45,7 +45,7 @@ public class BiradsAnalyzer {
 			reportWriter.setTiesUser(tiesUser);
 			reportWriter.setTiesPassword(tiesPassword);
 			try {
-				reportWriter.execute();
+				reportWriter.executeBatch();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

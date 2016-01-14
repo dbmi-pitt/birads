@@ -28,7 +28,7 @@ import edu.upmc.opi.caBIG.caTIES.database.domain.impl.DocumentImpl;
 
 public class ReportWriter {
 
-	protected static final Logger logger = Logger.getLogger(ReportLoader.class);
+	protected static final Logger logger = Logger.getLogger(ReportWriter.class);
 
 	public static String CONST_RANDOMIZATION_MODE_HOMOGENOUS = "homogenous";
 	public static String CONST_RANDOMIZATION_MODE_HETEROGENI = "heterogenious";
@@ -46,6 +46,9 @@ public class ReportWriter {
 
 	private String tiesUser = null;
 	private String tiesPassword = null;
+	
+	private int goalLevel = -1;
+	private int goalLimit = -1;
 
 	private File outputDirectory;
 
@@ -58,7 +61,7 @@ public class ReportWriter {
 		reportWriter.setTiesUser(tiesUser);
 		reportWriter.setTiesPassword(tiesPassword);
 		try {
-			reportWriter.execute();
+			reportWriter.execute();	
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -69,7 +72,19 @@ public class ReportWriter {
 	public void execute() throws FileNotFoundException, IOException {
 		establishTiesDataSource();
 		biradsDsm = BiradsDataSource.getInstance().getBiradsDataSourceManager();
+		
+//		These 22 documents need to be replaced by 
+//		18 reports with a BIRADS category 5, and
+//		6 reports with a BIRADS category 4
+//
+		setGoalLevel(5);
+		setGoalLimit(18);
 		randomize();
+		
+		setGoalLevel(4);
+		setGoalLimit(6);
+		randomize();
+		
 		Collection<Report> unProcessedReports = getUnprocessedReportCollection();
 		TreeSet<Report> sortedReports = sortReports(unProcessedReports);
 		establishOutputDirectory();
@@ -77,6 +92,31 @@ public class ReportWriter {
 		writeDocumentTexts(sortedReports);
 		System.out.println("Done Processing " + unProcessedReports.size()
 				+ " reports.");
+		destroyBiradsDataSource();
+		destroyTiesDataSource();
+	}
+	
+	public void executeBatch() throws FileNotFoundException, IOException {
+		establishTiesDataSource();
+		biradsDsm = BiradsDataSource.getInstance().getBiradsDataSourceManager();
+		randomizeBatch();
+		Collection<Report> unProcessedReports = getUnprocessedReportCollection();
+		TreeSet<Report> sortedReports = sortReports(unProcessedReports);
+		establishOutputDirectory();
+		writeCsvSummaryFile(sortedReports);
+		writeDocumentTexts(sortedReports);
+		System.out.println("Done Processing " + unProcessedReports.size()
+				+ " reports.");
+		destroyBiradsDataSource();
+		destroyTiesDataSource();
+	}
+	
+	public void openUp() {
+		establishTiesDataSource();
+		biradsDsm = BiradsDataSource.getInstance().getBiradsDataSourceManager();
+	}
+	
+	public void closeUp() {
 		destroyBiradsDataSource();
 		destroyTiesDataSource();
 	}
@@ -155,18 +195,22 @@ public class ReportWriter {
 		return sortedReports;
 	}
 
-	private void randomize() {
+	private void randomizeBatch() {
 		if (getRandomizationMode().equals(CONST_RANDOMIZATION_MODE_HETEROGENI)) {
 			for (int idx = -1; idx < 7; idx++) {
-				randomize(idx, 60);
+				setGoalLevel(idx);
+				setGoalLimit(60);
+				randomize();
 			}
 		} else {
-			randomize(-1, 600);
+			setGoalLevel(-1);
+			setGoalLimit(600);
+			randomize();
 		}
 		//
 	}
 
-	private void randomize(int level, int emissionPartitionSize) {
+	private void randomize() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("	update ");
 		sb.append("		report ");
@@ -174,6 +218,7 @@ public class ReportWriter {
 		sb.append("	    application_status = 'EMITTING_<EMITT_LEVEL>' ");
 		sb.append("where ");
 		sb.append("   application_status = 'SUMMARIZING' and ");
+		sb.append("   document_type = 'RADIOLOGY' and ");
 		sb.append("   (left_birads = <LEVEL> and ");
 		sb.append("       right_birads <= <LEVEL> and  ");
 		sb.append("       bilateral_birads <= <LEVEL> and ");
@@ -195,9 +240,9 @@ public class ReportWriter {
 		sb.append("limit ");
 		sb.append("    <LIMIT> ");
 		String sql = sb.toString();
-		sql = sql.replaceAll("<EMITT_LEVEL>", (level + 1) + "");
-		sql = sql.replaceAll("<LEVEL>", level + "");
-		sql = sql.replaceAll("<LIMIT>", emissionPartitionSize + "");
+		sql = sql.replaceAll("<EMITT_LEVEL>", (getGoalLevel() + 1) + "");
+		sql = sql.replaceAll("<LEVEL>", getGoalLevel() + "");
+		sql = sql.replaceAll("<LIMIT>", getGoalLimit() + "");
 		System.out.println(sql);
 
 		Transaction tx = biradsDsm.getSession().beginTransaction();
@@ -279,6 +324,22 @@ public class ReportWriter {
 
 	public void setRandomizationMode(String randomizationMode) {
 		this.randomizationMode = randomizationMode;
+	}
+
+	public int getGoalLevel() {
+		return goalLevel;
+	}
+
+	public void setGoalLevel(int goalLevel) {
+		this.goalLevel = goalLevel;
+	}
+
+	public int getGoalLimit() {
+		return goalLimit;
+	}
+
+	public void setGoalLimit(int goalLimit) {
+		this.goalLimit = goalLimit;
 	}
 
 }
