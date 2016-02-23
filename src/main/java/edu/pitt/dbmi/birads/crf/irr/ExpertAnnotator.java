@@ -14,7 +14,7 @@ import edu.pitt.dbmi.birads.crf.digestion.ExpertDocument;
 
 public class ExpertAnnotator {
 
-	private final String inputPath = "C:\\Users\\kjm84\\Desktop\\snapshot010416";
+	private final String inputPath = "C:\\Users\\kjm84\\Desktop\\snapshot022216";
 
 	private final List<ExpertDocument> allExpertDocs = new ArrayList<ExpertDocument>();
 
