@@ -34,8 +34,8 @@ import edu.pitt.dbmi.birads.typesystem.type.RightBirads;
 
 public class XmiReader {
 
-	private final String XMI_INPUT_DIR_PATH = "C:/Users/kjm84/Desktop/snapshot102115/xmi";
-	private final String FTR_OUTPUT_DIR_PATH = "C:/Users/kjm84/Desktop/snapshot102115/ftr";
+	private final String XMI_INPUT_DIR_PATH = "C:/Users/kjm84/Desktop/birads_decks/analysis160317/xmi";
+	private final String FTR_OUTPUT_DIR_PATH = "C:/Users/kjm84/Desktop/birads_decks/analysis160317/ftr";
 
 	private File ftrsDirectory = null;
 	private TypeSystemDescription typeSystemDescription = null;

@@ -2,6 +2,8 @@ package edu.pitt.dbmi.birads.crf.ctakes;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Iterator;
 
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.log4j.Logger;
@@ -32,6 +34,8 @@ public class BiradsExpertAnnotator extends JCasAnnotator_ImplBase {
 	@ConfigurationParameter(name = PARAM_TEXT_DIRECTORY, mandatory = true, description = "directory containing the text files (if DocumentIDs are just filenames); "
 			+ "defaults to assuming that DocumentIDs are full file paths")
 	private File expertDirectory = null;
+	
+	private String[] annotators = {"Rebeccaj", "sec113"};
 	
 	@Override
 	public void initialize(UimaContext uimaContext)
@@ -67,20 +71,27 @@ public class BiradsExpertAnnotator extends JCasAnnotator_ImplBase {
 	protected URI getTextURI(JCas jCas) throws AnalysisEngineProcessException {
 		String expertPath = JCasUtil.selectSingle(jCas, DocumentID.class)
 				.getDocumentID();
+		URI answer = null;
 		if (expertDirectory != null) {
 			expertPath = expertPath.replaceAll("\\.txt", "");
-			expertPath = expertDirectory + File.separator + expertPath
-					+ ".birads.Rebeccaj.completed.xml";
-			System.out.println("The expert path is " + expertPath);
-		}
-		File tmpFile = new File(expertPath);
-		URI answer = null;
-		if (tmpFile.exists() && tmpFile.isFile()) {
-			System.out.println("Found file named " + tmpFile);
-			answer = tmpFile.toURI();
+			expertPath = expertPath.replaceAll("_", "");
+			Iterator<String> annotatorIterator = Arrays.asList(annotators).iterator();
+		    while (annotatorIterator.hasNext()) {
+		    	String annotator = annotatorIterator.next();
+		    	String fullExpertPath = expertDirectory + File.separator + expertPath
+						+ ".birads." + annotator + ".completed.xml";
+				File tmpFile = new File(fullExpertPath);
+				if (tmpFile.exists() && tmpFile.isFile()) {
+					System.out.println("Found file named " + tmpFile);
+					answer = tmpFile.toURI();
+					break;
+				}
+		    }	
 		}
 		return answer;
 	}
+	
+	
 
 	public Annotation createBirads(JCas jCas, int start, int end,
 			String biradsType) {

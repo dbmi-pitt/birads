@@ -24,8 +24,7 @@
 <implementationName>org.apache.ctakes.core.cr.FilesInDirectoryCollectionReader</implementationName>
 <processingResourceMetaData>
 <name>lines from file collection reader</name>
-<description>This collection reader facilitates reading documents from a directory.
-</description>
+<description>This collection reader facilitates reading documents from a directory.</description>
 <version>1.0</version>
 <vendor>Mayo Clinic</vendor>
 <configurationParameters>
@@ -69,10 +68,36 @@
 <nameValuePair>
 <name>InputDirectory</name>
 <value>
-<string>CHANGEME</string>
+<string>C:\Users\kjm84\Desktop\birads_decks\birads_prime_160114</string>
 </value>
 </nameValuePair>
-</configurationParameterSettings>
+<nameValuePair>
+        <name>Extensions</name>
+        <value>
+          <array>
+            <string>txt</string>
+          </array>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>Language</name>
+        <value>
+          <string>en</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>Encoding</name>
+        <value>
+          <string>utf-8</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>Recurse</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
 <typeSystemDescription/>
 <typePriorities/>
 <fsIndexCollection/>
@@ -89,4 +114,5 @@
 <outputsNewCASes>false</outputsNewCASes>
 </operationalProperties>
 </processingResourceMetaData>
+<resourceManagerConfiguration/>
 </collectionReaderDescription>

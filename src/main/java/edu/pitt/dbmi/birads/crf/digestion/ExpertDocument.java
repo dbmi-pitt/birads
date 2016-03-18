@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.digester3.Digester;
 import org.apache.commons.digester3.binder.DigesterLoader;
@@ -27,7 +29,7 @@ public class ExpertDocument implements Comparable<ExpertDocument> {
 	private InputStream inputStream;
 
 	private final List<Entity> entities = new ArrayList<Entity>();
-	
+
 	private Iterator<Entity> iterator;
 
 	public void cacheEntities() {
@@ -37,7 +39,7 @@ public class ExpertDocument implements Comparable<ExpertDocument> {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void displayEntities() {
 		for (Entity entity : entities) {
 			System.out.println(entity);
@@ -60,23 +62,24 @@ public class ExpertDocument implements Comparable<ExpertDocument> {
 				int result = o1.getsPos() - o2.getePos();
 				result = (result == 0) ? o1.getePos() - o2.getePos() : result;
 				return result;
-			}});
-			
+			}
+		});
+
 	}
 
 	public void addEntity(Entity entity) {
 		entity.setDocumentSequence(sequence);
 		entities.add(entity);
 	}
-	
+
 	public void iterate() {
 		iterator = entities.iterator();
 	}
-	
+
 	public boolean hasNext() {
 		return iterator.hasNext();
 	}
-	
+
 	public Entity next() {
 		return iterator.next();
 	}
@@ -104,10 +107,20 @@ public class ExpertDocument implements Comparable<ExpertDocument> {
 	public void setPath(String path) {
 		this.path = path;
 	}
-	
+
 	@Override
 	public int compareTo(ExpertDocument docTwo) {
 		return getSequence().compareTo(docTwo.getSequence());
+	}
+
+	public String getReportName() {
+		String reportName = null;
+		Pattern pattern = Pattern.compile("report\\d+");
+		Matcher matcher = pattern.matcher(getPath());
+		if (matcher.find()) {
+			reportName = matcher.group();
+		}
+		return reportName;
 	}
 
 	public String toString() {
@@ -115,5 +128,4 @@ public class ExpertDocument implements Comparable<ExpertDocument> {
 				ToStringStyle.MULTI_LINE_STYLE);
 	}
 
-	
 }
