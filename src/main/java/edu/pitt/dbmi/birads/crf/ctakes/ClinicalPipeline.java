@@ -117,10 +117,8 @@ public class ClinicalPipeline {
 		}
 		aggregateBuilder.add(SentenceDetector.createAnnotatorDescription());
 		aggregateBuilder
-				.add(TokenizerAnnotatorPTB.createAnnotatorDescription());
+				.add(BiradsTokenizer.createAnnotatorDescription());
 		aggregateBuilder.add(LvgAnnotator.createAnnotatorDescription());
-		aggregateBuilder.add(ContextDependentTokenizerAnnotator
-				.createAnnotatorDescription());
 		aggregateBuilder.add(POSTagger.createAnnotatorDescription());
 		aggregateBuilder.add(Chunker.createAnnotatorDescription());
 		aggregateBuilder.add(ClinicalPipelineFactory

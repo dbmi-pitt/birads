@@ -25,8 +25,8 @@ import edu.pitt.dbmi.birads.crf.digestion.ExpertDocument;
 
 public class StatisticsGenerator {
 
-	private final String rawPath = "C:\\Users\\kjm84\\Desktop\\birads_decks\\analysis160317\\raw";
-	private final String expertPath = "C:\\Users\\kjm84\\Desktop\\birads_decks\\analysis160317\\exp";
+	private final String rawPath = "C:\\Users\\kjm84\\Desktop\\birads_decks\\analysis160406\\raw";
+	private final String expertPath = "C:\\Users\\kjm84\\Desktop\\birads_decks\\analysis160406\\exp";
 
 	private final List<ExpertDocument> allExpertDocs = new ArrayList<ExpertDocument>();
 

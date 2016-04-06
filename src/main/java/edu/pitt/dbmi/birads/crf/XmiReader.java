@@ -34,8 +34,8 @@ import edu.pitt.dbmi.birads.typesystem.type.RightBirads;
 
 public class XmiReader {
 
-	private final String XMI_INPUT_DIR_PATH = "C:/Users/kjm84/Desktop/birads_decks/analysis160317/xmi";
-	private final String FTR_OUTPUT_DIR_PATH = "C:/Users/kjm84/Desktop/birads_decks/analysis160317/ftr";
+	private final String XMI_INPUT_DIR_PATH = "C:/Users/kjm84/Desktop/birads_decks/analysis160406/xmi";
+	private final String FTR_OUTPUT_DIR_PATH = "C:/Users/kjm84/Desktop/birads_decks/analysis160406/ftr";
 
 	private File ftrsDirectory = null;
 	private TypeSystemDescription typeSystemDescription = null;
@@ -64,8 +64,10 @@ public class XmiReader {
 		if (xmiDirectory.exists() && xmiDirectory.isDirectory()) {
 			File[] xmiFiles = xmiDirectory.listFiles();
 			for (File xmiFile : xmiFiles) {
-				JCas jCas = loadXmiFileIntoCas(xmiFile);
-				processJCas(jCas);
+				if (xmiFile.getName().endsWith("xmi")) {
+					JCas jCas = loadXmiFileIntoCas(xmiFile);
+					processJCas(jCas);
+				}	
 			}
 		}
 	}
