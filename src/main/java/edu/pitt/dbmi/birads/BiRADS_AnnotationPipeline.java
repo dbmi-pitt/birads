@@ -41,23 +41,30 @@ public class BiRADS_AnnotationPipeline {
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
 		String inputDirectory= "/input/text";
 		String outputDirectory= "/output";
+		String expertDirectory= null;
 		
-		
-		if(args.length < 2){
-			if(!new File(inputDirectory).exists()){
-				System.err.println("Usage: java -jar BiRADS_Extractor.jar <input report directory> <output resuls directory>");
-				return ;
-			}
-		}else {
+		if(args.length == 2) {
 			inputDirectory= args[0];
 			outputDirectory= args[1];
+		}else if(args.length == 4 && "-train".equals(args[0])){
+			expertDirectory = args[1];
+			inputDirectory= args[2];
+			outputDirectory= args[3];
+		}else{
+			if(!new File(inputDirectory).exists()){
+				System.err.println("Usage: java -jar BiRADS_Extractor.jar <input directory> <output directory>");
+				System.err.println("Usage: java -jar BiRADS_Extractor.jar -train <annotation dir> <input dir> <output dir>");
+				return ;
+			}
 		}
-		//String expertDirectory="/home/tseytlin/Data/BiRADS/gold/expert";
+
 		
 		// run to execute a model
-		runModelPipeline(inputDirectory, outputDirectory);
-		//runTrainPipeline(inputDirectory,expertDirectory, outputDirectory);
-		
+		if(expertDirectory == null) {
+			runModelPipeline(inputDirectory, outputDirectory);
+		}else {
+			runTrainPipeline(inputDirectory, expertDirectory, outputDirectory);
+		}
 		System.out.println("\ndone");
 	}
 
